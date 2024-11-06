@@ -12,17 +12,20 @@ class TweetService {
 
         const tweet = await this.tweetRepository.create(data);
         let alreadyPresentTags = await this.hashtagRepository.findByName(tags);
-        alreadyPresentTags = alreadyPresentTags.map(tags => tags.title); 
+        let titleOfPresentTags = alreadyPresentTags.map(tags => tags.title); 
 
-        let newTags = tags.filter(tag => !alreadyPresentTags.includes(tag));
+        let newTags = tags.filter(tag => !titleOfPresentTags.includes(tag));
         newTags = newTags.map(tag => {
             return {title: tag, tweets: [tweet.id]}
         });
-        const response = await this.hashtagRepository.bulkCreate(newTags);
+        await this.hashtagRepository.bulkCreate(newTags);
 
+        alreadyPresentTags.forEach((tag) => {
+            tag.tweets.push(tweet.id);
+            tag.save();
+        });
         return tweet;  
     }
-
 }
 
 module.exports = TweetService;

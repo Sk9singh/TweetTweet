@@ -13,6 +13,7 @@ export const createTweet = async (req,res) => {
             return res.status(500).json({error:err});
           }
           const payload = req.body;
+          if(req.file!=undefined)
           payload.image = req.file.location;
         const response = await tweetService.create(payload);
         return res.status(201).json({
